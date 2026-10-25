@@ -18,23 +18,20 @@
 
 ## 📌 Overview
 
-SMB / NetBIOS exposure scanner — discover, negotiate, signing, null-session hints
+
+OSmbScan is an SMB/NetBIOS exposure scanner that discovers Windows file-sharing services and reports their security posture using pure-stdlib probes. It performs host/CIDR discovery on 139/445, hand-built SMB1 and SMB2 negotiate probes, NetBIOS node-status queries and safe anonymous/null-session hints — with no brute force and no exploitation. Each host gets a report of dialects, signing, SMBv1 status and findings, exportable as TXT, CSV or JSON.
 
 ---
 
 ## ✨ Features
 
-- Host / CIDR discovery (threaded TCP connect on 139 / 445 with per-socket timeout, /24 guard)
-- Pure-stdlib SMB1 negotiate probe — hand-built SMB_COM_NEGOTIATE packet, dialect-index parser, SMBv1-enabled detection (EternalBlue / MS17-010 hint only, no exploitation)
-- Pure-stdlib SMB2 negotiate probe — struct-built NEGOTIATE request, response parser for dialect, security mode (signing required / enabled), server GUID, max SMB version, capabilities
-- NetBIOS node-status query (UDP 137) — name list, workgroup / domain, unique vs group names, adapter MAC address parsing
-- Anonymous / null-session hint — NEGOTIATE + SESSION_SETUP (anonymous) handshake, safe tree connect to IPC$ when trivially allowed, clearly labelled authorized-use-only, no brute force
-- Vulnerability hints — SMBv1 enabled, signing not required (NTLM relay), guest / null session, each with severity + remediation
-- Best-effort safe share enumeration note (IPC$ reachable vs auth required); no file download
-- Per-host report — ports, dialects, signing, SMBv1, NetBIOS names, findings (severity + fix)
-- Export TXT / CSV / JSON with save-location chooser and clipboard copy
-- Interactive menu + full CLI (--target, --ports, --netbios, --null-session, --timeout, --threads, --json, -o, --fail-on, --version)
-- Persistent settings in ~/OSmbScan/config.json
+
+- Threaded host / CIDR discovery on TCP 139 and 445 with per-socket timeouts and a /24 guard
+- Pure-stdlib SMB1 and SMB2 negotiate probes (dialects, signing mode, server GUID, capabilities, SMBv1/EternalBlue hint)
+- NetBIOS node-status query over UDP 137 (names, workgroup/domain, adapter MAC)
+- Safe anonymous / null-session hint with IPC$ reachability check — no brute force
+- Vulnerability hints (SMBv1 enabled, signing not required, guest/null session) with severity and remediation
+- Full CLI (--target, --ports, --netbios, --null-session, --timeout, --threads) and TXT/CSV/JSON export
 
 ---
 
@@ -47,8 +44,13 @@ SMB / NetBIOS exposure scanner — discover, negotiate, signing, null-session hi
 
 ## 🚀 Usage
 
+
 ```bash
-./OSmbScan
+./OSmbScan --target 192.168.1.0/24 --netbios
+./OSmbScan -t 10.0.0.5 --null-session --format json -o smb.json
+./OSmbScan --target 10.0.0.0/24 --threads 100 --fail-on high
+./OSmbScan --selftest
+./OSmbScan --help
 ```
 
 ---
